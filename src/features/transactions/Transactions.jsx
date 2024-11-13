@@ -1,0 +1,92 @@
+import { useState } from "react";
+//NEW
+import { useDispatch, useSelector } from "react-redux";
+import { deposit, withdrawal, transfer } from "./transactionsSlice";
+//NEW
+//OLD
+// import { transfer } from "./transactionsSlice";
+//OLD
+import "./transactions.scss";
+
+/**
+ * Allows users to deposit to, withdraw from, and transfer money from their account.
+ */
+export default function Transactions() {
+  // TODO: Get the balance from the Redux store using the useSelector hook
+  //OLD
+  // const balance = 0;
+// OLD
+//NEW
+const balance = useSelector((state) => state.transactions.balance);
+  const dispatch = useDispatch();
+//NEW
+  const [amountStr, setAmountStr] = useState("0.00");
+  const [recipient, setRecipient] = useState("");
+
+  /** Dispatches a transaction action based on the form submission. */
+  const onTransaction = (e) => {
+    e.preventDefault();
+    console.log(recipient);
+    // This changes depending on which button the user clicked to submit the form.
+    // It will be either "deposit", "withdraw", or "transfer".
+    const action = e.nativeEvent.submitter.name;
+
+    const amount = +amountStr;
+
+    // TODO: Dispatch the appropriate transaction action based on `action`
+    if (action === "transfer") {
+      // The `transfer` action is dispatched with a payload containing
+      // the amount and the recipient.
+      dispatch(transfer( { amount, recipient} ));
+      //NEW
+    } else if (action === "deposit") {
+        dispatch(deposit({ amount }));
+      } else if (action === "withdraw") {
+        dispatch(withdrawal({ amount }));
+        //NEW
+    }
+  };
+
+  return (
+    <section className="transactions container">
+      <h2>Transactions</h2>
+      <figure>
+        <figcaption>Current Balance &nbsp;</figcaption>
+        <strong>${balance.toFixed(2)}</strong>
+      </figure>
+      <form onSubmit={onTransaction}>
+        <div className="form-row">
+          <label>
+            Amount
+            <input
+              type="number"
+              inputMode="decimal"
+              min={0}
+              step="0.01"
+              value={amountStr}
+              onChange={(e) => setAmountStr(e.target.value)}
+            />
+          </label>
+          <div>
+            <button default name="deposit">
+              Deposit
+            </button>
+            <button name="withdraw">Withdraw</button>
+          </div>
+        </div>
+        <div className="form-row">
+          <label>
+            Transfer to
+            <input
+              placeholder="Recipient Name"
+              name="recipient"
+              value={recipient}
+              onChange={(e) => setRecipient(e.target.value)}
+            />
+          </label>
+          <button name="transfer">Transfer</button>
+        </div>
+      </form>
+    </section>
+  );
+}
